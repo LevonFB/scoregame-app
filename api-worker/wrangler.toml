@@ -1,0 +1,49 @@
+name = "scoregame-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[observability]
+enabled = true
+
+[vars]
+ALLOWED_ORIGIN = "https://scoregameee.online"
+CLOUDINARY_CLOUD_NAME = "your-cloud-name"
+# Stage 9 home leaderboard load reduction (safe: each has a fallback to the
+# current behavior). Delivered to the static frontend via /app-sections/visibility,
+# so no web rebuild is needed — only an api-worker deploy.
+#   - lazy-load: eager-load only the primary league board on home, rest on scroll.
+#   - dedupe: coalesce identical concurrent global-leaderboard computations.
+HOME_LEAGUES_LAZY_LOAD_V2_ENABLED = "true"
+HOME_RATING_DEDUPE_V2_ENABLED = "true"
+# Season predictions: after a deadline passes, the hourly shared cron promotes the last
+# saved draft to "submitted" — but only if it passes the same validation the manual
+# confirm button runs. Incomplete drafts stay drafts (nothing is filled in for the user).
+SEASON_PREDICTION_AUTOSUBMIT_ENABLED = "true"
+# RAPIDAPI_KEY must be stored as a Cloudflare secret (not in vars):
+#   pnpm wrangler secret put RAPIDAPI_KEY
+
+[[d1_databases]]
+binding = "DB"
+database_name = "scoregame_db"
+database_id = "00000000-0000-0000-0000-000000000000" # замените на свой D1 database_id
+
+[[services]]
+binding = "BOT"
+service = "scoregame-bot"
+
+[durable_objects]
+bindings = [
+  { name = "ANTI_ABUSE_LIMITER", class_name = "AntiAbuseLimiter" }
+]
+
+[[migrations]]
+tag = "anti-abuse-v1"
+new_sqlite_classes = ["AntiAbuseLimiter"]
+
+[triggers]
+# Stage 16: ONE shared V2 dispatcher cron "5 * * * *" replaces the three separate V2
+# schedules (old "15 4", "5", "7"). It fans out to weekly/partner (hourly) + daily
+# backfill (post-04:00-UTC window) — each branch independently feature-flagged (all
+# default OFF => no D1 work). Total triggers: 3 api + 1 bot = 4 ≤ Cloudflare Free 5.
+# Deployed and firing; inert until the V2 flags are enabled.
+crons = ["*/10 * * * *", "1 0 * * *", "5 * * * *"]

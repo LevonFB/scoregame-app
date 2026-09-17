@@ -1,0 +1,262 @@
+/* Dynamic eurocup knockout bracket board — same visual approach as the WC2026
+   board (app/bracket/bracket.module.css): all rounds shown at once as columns
+   with connector arms, horizontally scrollable. Theme-driven (no hardcoded
+   colors); the winner tint uses the tournament `tone` applied inline. */
+
+.board {
+  --col-gap: 18px;
+  --line: color-mix(in srgb, var(--tg-hint) 22%, transparent);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* Keep the horizontal swipe inside the board (don't trigger back-gesture). */
+  overscroll-behavior-x: contain;
+  /* Gentle round-by-round snapping; clears the board's left padding. */
+  scroll-snap-type: x proximity;
+  scroll-padding-left: 10px;
+  /* Hide the scrollbar for a clean mobile look (rail chips drive navigation). */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-radius: 12px;
+  padding: 9px 10px 11px;
+  margin-top: 8px;
+  background: color-mix(in srgb, var(--tg-secondary-bg) 34%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tg-hint) 9%, transparent);
+}
+.board::-webkit-scrollbar { display: none; }
+
+.header {
+  display: grid;
+  grid-template-columns: repeat(4, 128px);
+  column-gap: var(--col-gap);
+  min-width: 566px;
+  margin-bottom: 6px;
+}
+
+.headerTitle {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: var(--tg-hint);
+  text-align: center;
+}
+
+.canvas {
+  display: grid;
+  grid-template-columns: repeat(4, 128px);
+  column-gap: var(--col-gap);
+  min-width: 566px;
+}
+
+.column {
+  display: grid;
+  grid-template-rows: repeat(8, minmax(48px, 1fr));
+  row-gap: 7px;
+  scroll-snap-align: start;
+}
+
+/* 8 rows total: each R16 card occupies one row; later rounds span to centre
+   between their two feeders. */
+.colR16 .slot { grid-row: span 1; }
+.colQF  .slot { grid-row: span 2; }
+.colSF  .slot { grid-row: span 4; }
+.colF   .slot { grid-row: span 8; }
+
+.slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Breathing room when scrollIntoView brings a stage's first match into view. */
+  scroll-margin-top: 12px;
+  scroll-margin-left: 10px;
+}
+
+/* Outgoing arms — draw halfway into the column gap. */
+.slotHasOut::after {
+  content: "";
+  position: absolute;
+  right: calc(-0.5 * var(--col-gap));
+  width: calc(0.5 * var(--col-gap));
+  pointer-events: none;
+  z-index: 1;
+}
+.slotUpper::after {
+  top: 50%;
+  height: calc(50% + 7px / 2);
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+.slotLower::after {
+  bottom: 50%;
+  height: calc(50% + 7px / 2);
+  border-top: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+/* Straight feed (final → champion): one centred horizontal line. */
+.slotStraight::after {
+  top: 50%;
+  height: 1px;
+  background: var(--line);
+}
+/* Incoming horizontal line from the halfway point. */
+.slotHasIn::before {
+  content: "";
+  position: absolute;
+  left: calc(-0.5 * var(--col-gap));
+  top: 50%;
+  width: calc(0.5 * var(--col-gap));
+  height: 1px;
+  background: var(--line);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card {
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-radius: 9px;
+  padding: 4px;
+  background: color-mix(in srgb, var(--tg-bg) 78%, var(--tg-secondary-bg));
+  border: 1px solid color-mix(in srgb, var(--tg-hint) 10%, transparent);
+}
+
+.cardHint {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--tg-hint);
+  text-align: center;
+  margin-bottom: 1px;
+}
+
+.teamRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  min-height: 30px;
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--tg-secondary-bg) 58%, transparent);
+  color: var(--tg-text);
+  font-size: 10.5px;
+  font-weight: 850;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.teamRowReadonly { cursor: default; }
+.teamRowEmpty {
+  background: color-mix(in srgb, var(--tg-hint) 8%, transparent);
+  color: var(--tg-hint);
+  cursor: default;
+  font-weight: 750;
+}
+
+.crest {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.crestFallback {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 900;
+  color: var(--tg-hint);
+  background: color-mix(in srgb, var(--tg-hint) 14%, transparent);
+}
+
+.teamName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickDot {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--tg-hint) 42%, transparent);
+}
+
+.teamChip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  height: 15px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+
+/* Compact, self-sized champion card (mobile focused view — not a tall column). */
+.champCard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  text-align: center;
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.champCrest {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.champLabel {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  color: var(--tg-hint);
+}
+.champName {
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1.15;
+  color: var(--tg-text);
+}
+.champCode {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  color: var(--tg-hint);
+}
+.champHint {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--tg-hint);
+}
+.champFinalLine {
+  margin: 10px auto 0;
+  max-width: 300px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--tg-hint);
+}

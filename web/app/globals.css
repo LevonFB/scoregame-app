@@ -1,0 +1,390 @@
+:root {
+  /* Telegram Theme Variables */
+  --tg-bg: var(--tg-theme-bg-color, #ffffff);
+  --tg-text: var(--tg-theme-text-color, #000000);
+  --tg-hint: var(--tg-theme-hint-color, #8e8e93);
+  --tg-link: var(--tg-theme-link-color, #007aff);
+  --tg-button: var(--tg-theme-button-color, #007aff);
+  --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+  --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f2f2f7);
+  --tg-header-bg: var(--tg-theme-header-bg-color, #f2f2f7);
+  --tg-destructive: var(--tg-theme-destructive-text-color, #ff3b30);
+
+  /* Aliases for convenience */
+  --bg: var(--tg-bg);
+  --text: var(--tg-text);
+  --hint: var(--tg-hint);
+  --secondary: var(--tg-secondary-bg);
+  --button: var(--tg-button);
+  --button-text: var(--tg-button-text);
+
+  /* Scoregame UX motion layer */
+  --sg-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --sg-ease-press: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --sg-press-scale: 0.965;
+  --sg-border-soft: rgba(128, 128, 128, 0.12);
+  --sg-glow-button: color-mix(in srgb, var(--tg-button) 26%, transparent);
+}
+
+/* Light theme explicit overrides */
+body.theme-light {
+  --bg: var(--tg-theme-bg-color, #ffffff);
+  --text: var(--tg-theme-text-color, #000000);
+  --section-bg: #f2f2f7;
+  --secondary-bg: #f2f2f7;
+}
+
+/* Dark theme explicit overrides */
+body.theme-dark {
+  --bg: var(--tg-theme-bg-color, #000000);
+  --text: var(--tg-theme-text-color, #ffffff);
+  --section-bg: #1c1c1e;
+  --secondary-bg: #1c1c1e;
+}
+
+html,
+body {
+  min-height: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100dvh;
+  color: var(--text);
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled) {
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition:
+    transform 150ms var(--sg-ease-press),
+    opacity 150ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+button:not(:disabled):active {
+  transform: scale(var(--sg-press-scale)) translateZ(0);
+}
+
+button:disabled {
+  touch-action: auto;
+}
+
+.sg-app-shell {
+  height: 100vh;
+  height: 100dvh;
+  height: var(--sg-viewport-height, 100dvh);
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  /* Без этого Chrome «доводит» scrollTop, когда высота контента скачком
+     меняется при смене раздела, и экран оказывается ниже всего контента. */
+  overflow-anchor: none;
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Стартовая заставка «Заливка» (разметка и цикл прогресса — в app/layout.tsx).
+   Буквы SG наливаются акцентом снизу вверх по --sg-boot-p, логотип изредка
+   переворачивается. Фон — secondary_bg, тот же цвет, что приложение ставит
+   окну Telegram, чтобы переход с системного экрана был незаметным.
+   Маски те же, что у BrandLogo: тёмная тема — обводка + тела, светлая — силуэт. */
+.sg-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  background: var(--tg-secondary-bg);
+  color: var(--tg-text);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.sg-boot[data-out] {
+  opacity: 0;
+  transform: scale(1.03);
+  pointer-events: none;
+}
+.sg-boot__mark {
+  position: relative;
+  width: min(46vw, 220px);
+  aspect-ratio: 320 / 157;
+  animation: sgBootFlip 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+.sg-boot__mark i {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--sg-boot-mask) center / contain no-repeat;
+  mask: var(--sg-boot-mask) center / contain no-repeat;
+}
+.sg-boot__under { --sg-boot-mask: url(/sg-logo-blue.png); background: color-mix(in srgb, var(--tg-text) 14%, transparent); }
+.sg-boot__cream { --sg-boot-mask: url(/sg-logo-cream.png); background: #fff3d9; }
+.sg-boot__body,
+.sg-boot__flat { background: var(--tg-button); clip-path: inset(calc(100% - var(--sg-boot-p, 0%)) 0 0 0); }
+.sg-boot__body { --sg-boot-mask: url(/sg-logo-blue.png); }
+.sg-boot__flat { --sg-boot-mask: url(/sg-logo-light.png); display: none; }
+.sg-boot[data-scheme="light"] .sg-boot__under { --sg-boot-mask: url(/sg-logo-light.png); }
+.sg-boot[data-scheme="light"] .sg-boot__cream,
+.sg-boot[data-scheme="light"] .sg-boot__body { display: none; }
+.sg-boot[data-scheme="light"] .sg-boot__flat { display: block; }
+.sg-boot__load {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: calc(11% + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: 8px;
+}
+.sg-boot__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--tg-hint);
+}
+.sg-boot__pct { font-variant-numeric: tabular-nums; }
+.sg-boot__track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--tg-text) 12%, transparent);
+}
+.sg-boot__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--sg-boot-p, 0%);
+  border-radius: 3px;
+  background: var(--tg-button);
+}
+@keyframes sgBootFlip {
+  0%, 35% { transform: perspective(500px) rotateY(0deg); }
+  60% { transform: perspective(500px) rotateY(90deg); }
+  60.01% { transform: perspective(500px) rotateY(-90deg); }
+  85%, 100% { transform: perspective(500px) rotateY(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sg-boot__mark { animation: none; }
+}
+
+/* Зона, где текст разрешено выделять и копировать.
+   `!important` здесь не перестраховка: клиент Telegram на iOS сам навешивает
+   запрет выделения на всю страницу, и без важности наше правило проигрывает
+   его — по обычной специфичности мы выигрывали, но у него стоит !important. */
+.sg-selectable,
+.sg-selectable * {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+/* Кнопки остаются кнопками: выделение по ним только мешает нажатию. */
+.sg-selectable button,
+.sg-selectable button *,
+.sg-selectable .sg-pressable,
+.sg-selectable .sg-pressable *,
+.sg-selectable [role="button"],
+.sg-selectable [role="button"] * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+.sg-pressable {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transform: translateZ(0);
+  transition:
+    transform 150ms var(--sg-ease-press),
+    opacity 150ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.sg-pressable:not(:disabled):active {
+  transform: scale(var(--sg-press-scale)) translateZ(0);
+}
+
+.sg-pressable:disabled {
+  touch-action: auto;
+}
+
+/* Везде fill-mode backwards, а не both, и без постоянного will-change:
+   оба варианта оставляют на элементе transform навсегда, а элемент с transform
+   становится containing block для position:fixed потомков (и клипает их своим
+   overflow). Конечные кадры этих анимаций совпадают с дефолтом, так что
+   визуально ничего не меняется. */
+.sg-motion-card {
+  animation: sg-card-enter 340ms var(--sg-ease-out) backwards;
+  animation-delay: var(--sg-enter-delay, 0ms);
+}
+
+.sg-sheet {
+  animation: sg-sheet-enter 260ms var(--sg-ease-out) backwards;
+}
+
+.sg-pop {
+  animation: sg-pop-enter 220ms var(--sg-ease-out) backwards;
+}
+
+.sg-backdrop {
+  animation: sg-backdrop-enter 180ms ease both;
+}
+
+.sg-score-pop {
+  animation: sg-score-pop 170ms var(--sg-ease-out) both;
+}
+
+.sg-save-success {
+  animation: sg-save-success 520ms var(--sg-ease-out) both;
+}
+
+/* fill-mode backwards, а не both: иначе после анимации на скролл-контейнере
+   остаётся transform, и WebKit переводит его скролл на main thread. */
+.sg-question-panel {
+  animation: sg-question-panel-enter 210ms var(--sg-ease-out) backwards;
+  transform-origin: top center;
+}
+
+/* Для длинных списков внутри скролла: без композитного слоя на каждой кнопке,
+   иначе десятки слоёв съедают GPU и скролл начинает дёргаться. */
+.sg-pressable.sg-pressable-flat {
+  transform: none;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.sg-pressable.sg-pressable-flat:not(:disabled):active {
+  transform: scale(var(--sg-press-scale, 0.97));
+}
+
+.sg-primary-action {
+  box-shadow: 0 12px 24px var(--sg-glow-button), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+@keyframes sg-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sg-sheet-enter {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sg-pop-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sg-backdrop-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sg-score-pop {
+  0% {
+    opacity: 0.65;
+    transform: translateY(2px) scale(0.86);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sg-save-success {
+  0% {
+    box-shadow: 0 0 0 rgba(52, 199, 89, 0);
+  }
+  38% {
+    box-shadow: 0 0 0 7px rgba(52, 199, 89, 0.16);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(52, 199, 89, 0);
+  }
+}
+
+@keyframes sg-question-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-pressable,
+  .sg-motion-card,
+  .sg-sheet,
+  .sg-pop,
+  .sg-backdrop,
+  .sg-question-panel {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.sg-hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.sg-hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scoregame-front",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-01-18",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "../web/out",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "API",
+      "service": "scoregame-api"
+    }
+  ]
+}

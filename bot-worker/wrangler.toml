@@ -1,0 +1,20 @@
+name = "scoregame-bot"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[observability]
+enabled = true
+
+[vars]
+MINIAPP_URL = "https://scoregameee.online/"
+BOT_USERNAME = "scoregameee_Bot"
+ADMIN_IDS = "" # список Telegram ID админов, задаётся при деплое
+USER_NOTIFICATIONS_ENABLED = "true"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "scoregame_db"
+database_id = "00000000-0000-0000-0000-000000000000" # замените на свой D1 database_id
+
+[triggers]
+crons = ["*/2 * * * *"]

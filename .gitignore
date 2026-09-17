@@ -1,0 +1,51 @@
+# dependencies
+node_modules/
+
+# builds / worker state
+web/out/
+web/.next/
+# every local miniflare state dir, including the per-suite ones the e2e tests
+# create via --persist-to (.wrangler-e2e-*, .wrangler-release-gate-*, …) and
+# then wipe on the next run — their source of truth is e2e/fixtures/*.sql
+.wrangler*/
+*.tsbuildinfo
+
+# test output (Playwright run state / reports)
+web/test-results/
+web/playwright-report/
+
+# env / secrets (Cloudflare secrets live in the dashboard, never in the repo)
+.env
+.env.*
+# also catch the dot-less variants: copying the tree outside git (archives, cloud
+# sync, Finder) can drop the leading dot, and `env.local` would otherwise be a
+# live bot token one `git add -A` away from the remote
+env
+env.*
+*.env.local
+!.env.example
+
+# DB dumps — contain real user data, must never be pushed
+backup_*.sql
+*.sqlite
+*.sqlite3
+
+# temp / binary junk
+.tmp_uefa_apk/
+.tmp_uefa_xapk/
+samplw/
+temp_docx/
+.tmp/
+Thumbs.db
+.DS_Store
+
+# rendered marketing assets (~130 MB of video/screenshots produced by the
+# export-scoregame-* e2e specs) — the specs are versioned, their output is not
+social-media/
+
+# local tool state
+.claude/settings.local.json
+
+# wrangler local secrets: .dev.vars хранит RAPIDAPI_KEY и прочие ключи в открытом виде
+.dev.vars
+**/.dev.vars

@@ -1,0 +1,11 @@
+# Cloudflare Workers Assets header rules.
+# Next copies public/ into out/ on export, and front-worker serves out/ via the
+# ASSETS binding, which picks this file up automatically.
+#
+# Chunk filenames under /_next/static/ carry a content hash, so a given URL can
+# never change content. Without this rule Workers Assets serves them as
+# `max-age=0, must-revalidate` and the browser re-validates all 14 first-screen
+# assets on EVERY Mini App open — 14 round-trips before any API call, which is
+# expensive for our VPN-heavy audience.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

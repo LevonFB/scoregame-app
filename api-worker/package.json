@@ -1,0 +1,39 @@
+{
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20260118.0",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.5",
+		"wrangler": "^4.59.2"
+	},
+	"name": "api-worker",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"test": "vitest run",
+		"test:e2e": "node --test --test-concurrency=1 e2e/api.e2e.test.mjs",
+		"test:e2e:backfill": "node --test --test-concurrency=1 e2e/backfill.e2e.test.mjs",
+		"test:e2e:scheduled": "node --test --test-concurrency=1 e2e/scheduled.e2e.test.mjs",
+		"test:e2e:questshadow": "node --test --test-concurrency=1 e2e/questshadow.e2e.test.mjs",
+		"test:e2e:questapply": "node --test --test-concurrency=1 e2e/questapply.e2e.test.mjs",
+		"test:e2e:dailyread": "node --test --test-concurrency=1 e2e/dailyread.e2e.test.mjs",
+		"test:e2e:seasonalshadow": "node --test --test-concurrency=1 e2e/seasonalshadow.e2e.test.mjs",
+		"test:e2e:seasonalapply": "node --test --test-concurrency=1 e2e/seasonalapply.e2e.test.mjs",
+		"test:e2e:migration": "node --test --test-concurrency=1 e2e/migration.e2e.test.mjs",
+		"test:e2e:sharedcron": "node --test --test-concurrency=1 e2e/sharedcron.e2e.test.mjs",
+		"test:e2e:weekly": "node --test --test-concurrency=1 e2e/weekly.e2e.test.mjs",
+		"smoke:weekly-v2": "node --test --test-concurrency=1 e2e/weekly-v2.e2e.test.mjs",
+		"smoke:weekly-builder": "node --test --test-concurrency=1 e2e/weekly-builder.e2e.test.mjs",
+		"smoke:weekly-auth": "node --test --test-concurrency=1 e2e/weekly-auth-safety.e2e.test.mjs",
+		"smoke:lucky-token": "node --test --test-concurrency=1 e2e/lucky-token.e2e.test.mjs",
+		"smoke:referral": "node --test --test-concurrency=1 e2e/referral.e2e.test.mjs",
+		"test:e2e:partner": "node --test --test-concurrency=1 e2e/partner.e2e.test.mjs",
+		"test:e2e:leaguesql": "node --test --test-concurrency=1 e2e/leagueSql.e2e.test.mjs",
+		"test:e2e:leaguecallsite": "node --test --test-concurrency=1 e2e/leagueCallsite.e2e.test.mjs",
+		"test:int": "vitest run --config vitest.int.config.ts",
+		"deploy": "wrangler deploy"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": ""
+}

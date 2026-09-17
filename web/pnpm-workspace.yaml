@@ -1,0 +1,19 @@
+packages:
+  - .
+# Transitive build-time deps of `next` that ship known-vulnerable versions
+# (source-map path traversal in postcss, sourceMappingURL file read in babel,
+# inherited libvips CVEs in sharp). None are reachable at runtime — the app is a
+# static export — but pinning them keeps `pnpm audit` clean so a real finding
+# cannot hide in the noise. Drop an entry once next ships the patched version.
+overrides:
+  postcss: ">=8.5.23"
+  "@babel/core": ">=7.29.1"
+  sharp: ">=0.35.0"
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false
+  workerd: true
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
